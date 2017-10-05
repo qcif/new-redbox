@@ -40,26 +40,6 @@
                 "config": {
                     "name": "solrwrapper"
                 }
-            },
-						{
-                "id": "emailnotification",
-                "description": "Queue to send email notifications",
-                "priority": "8",
-                "config": {
-                    "name": "emailnotification",
-                    "debug": false,
-                    "from": {
-                        "email": "${admin.email}",
-                        "name": "ReDBox"
-                    },
-                    "smtp": {
-                        "host": "${smtp.host}"
-                    },
-                    "defaults": {
-                        "subject": "Notification",
-                        "body": "Default email message"
-                    }
-                }
             }
         ]
     }
