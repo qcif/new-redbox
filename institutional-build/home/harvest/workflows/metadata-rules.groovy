@@ -103,12 +103,15 @@ def void indexObject(def document, JsonObject jsonObject, String prefix) {
 	for (key in tfPackageMap.keySet()) {
 		def value = tfPackageMap.get(key);
 		def fieldKey = prefix+key;
+		def isString = false;
 		if(value instanceof String) {
 			//may be a date string
 			Date date = parseDate((String) value);
 			if (date != null) {
 				// It's a date so add the value as in a date specific solr field (starting with date_)
 				document.addField("date_"+fieldKey,date);
+			} else {
+			  isString = true;
 			}
 
 
@@ -117,6 +120,10 @@ def void indexObject(def document, JsonObject jsonObject, String prefix) {
 			} else {
 				document.addField(fieldKey,tfPackageMap.get(key));
 			}
+		}
+
+		if(isString) {
+			document.addField("str_"+fieldKey,tfPackageMap.get(key));
 		}
 
 		if(value instanceof Integer) {
@@ -142,4 +149,3 @@ def void indexObject(def document, JsonObject jsonObject, String prefix) {
 
 	}
 }
-
