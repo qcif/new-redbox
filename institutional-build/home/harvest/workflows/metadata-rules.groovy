@@ -103,10 +103,7 @@ def void indexObject(def document, JsonObject jsonObject, String prefix) {
 		def fieldKey = prefix+key;
 		def isString = false;
 
-		// If the flattened key ends in .<number> it can safely be put into an array in solr
-		if(fieldKey.matches(".*\\.[0-9]+")){
-			fieldKey = fieldKey.substring(0, fieldKey.lastIndexOf('.'));
-		}
+		
 		
 		if(value instanceof String) {
 			//may be a date string
@@ -118,11 +115,16 @@ def void indexObject(def document, JsonObject jsonObject, String prefix) {
 				isString = true;
 			}
 
-			document.addField(fieldKey,tfPackageMap.get(key));
+			// If the flattened key ends in .<number> it can safely be put into an array in solr
+			if(fieldKey.matches(".*\\.[0-9]+")){
+				document.addField(fieldKey.substring(0, fieldKey.lastIndexOf('.'));,tfPackageMap.get(key));
+			} else {
+				document.addField(fieldKey,tfPackageMap.get(key));
+			}
 		}
 
 		if(isString) {
-			document.addField("str_"+fieldKey,tfPackageMap.get(key));
+			document.addField("text_"+fieldKey,tfPackageMap.get(key));
 		}
 
 		if(value instanceof Integer) {
