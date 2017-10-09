@@ -33,8 +33,6 @@ if(payload.getId().endsWith(".tfpackage")){
 			document.addField(topLevelKey,topLevelValue);
 		}
 	}
-
-
 }
 
 def pid = payload.getId()
@@ -104,6 +102,12 @@ def void indexObject(def document, JsonObject jsonObject, String prefix) {
 		def value = tfPackageMap.get(key);
 		def fieldKey = prefix+key;
 		def isString = false;
+
+		// If the flattened key ends in .<number> it can safely be put into an array in solr
+		if(fieldKey.matches(".*\\.[0-9]+")){
+			fieldKey = fieldKey.substring(0, fieldKey.lastIndexOf('.'));
+		}
+		
 		if(value instanceof String) {
 			//may be a date string
 			Date date = parseDate((String) value);
@@ -111,15 +115,10 @@ def void indexObject(def document, JsonObject jsonObject, String prefix) {
 				// It's a date so add the value as in a date specific solr field (starting with date_)
 				document.addField("date_"+fieldKey,date);
 			} else {
-			  isString = true;
+				isString = true;
 			}
 
-
-			if(fieldKey.matches(".*\\.[0-9]+")){
-				document.addField(fieldKey.substring(0, fieldKey.lastIndexOf('.')),tfPackageMap.get(key));
-			} else {
-				document.addField(fieldKey,tfPackageMap.get(key));
-			}
+			document.addField(fieldKey,tfPackageMap.get(key));
 		}
 
 		if(isString) {
