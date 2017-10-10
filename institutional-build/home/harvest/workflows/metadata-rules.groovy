@@ -117,7 +117,7 @@ def void indexObject(def document, JsonObject jsonObject, String prefix) {
 
 			// If the flattened key ends in .<number> it can safely be put into an array in solr
 			if(fieldKey.matches(".*\\.[0-9]+")){
-				document.addField(fieldKey.substring(0, fieldKey.lastIndexOf('.'));,tfPackageMap.get(key));
+				document.addField(fieldKey.substring(0, fieldKey.lastIndexOf('.'),tfPackageMap.get(key));
 			} else {
 				document.addField(fieldKey,tfPackageMap.get(key));
 			}
