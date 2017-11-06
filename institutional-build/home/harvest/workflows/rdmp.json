@@ -15,6 +15,11 @@
 			"repository.type": "Metadata Registry"
 		}
 	},
+	"transformer": {
+        "metadata": [
+            "contributorPermissions"
+        ]
+    },
 	"stages": {
 		"name": "inbox",
 		"label": "Inbox",
