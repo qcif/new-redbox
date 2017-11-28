@@ -83,6 +83,10 @@
             "rdmp": {
                 "jsonconfig": "rdmp.json",
                 "packages-in-package": false
+						},
+						"workspace": {
+                "jsonconfig": "workspace.json",
+                "packages-in-package": false
 						}
         },
         "harvestFiles": "${fascinator.home}/harvest",
