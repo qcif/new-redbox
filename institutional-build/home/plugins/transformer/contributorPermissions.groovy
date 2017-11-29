@@ -244,10 +244,8 @@ public class ContributorPermissionsTransformer implements Transformer {
 			metadataJsonObject.put("authorization",authorizationObject);
 			InputStream inputStream = new ByteArrayInputStream(new JsonSimple(metadataJsonObject).toString(true).getBytes("UTF8"));
 			StorageUtils.createOrUpdatePayload(inObject, "metadata.tfpackage", inputStream);
-		} catch (StorageException e) {
-			throw new TransformerException(e);
-		} catch (IOException e) {
-			throw new TransformerException(e);
+		} catch (Exception e) {
+			log.error("Contributor Permissions Transformer failed", e)
 		}
 
 		return inObject;
@@ -262,7 +260,7 @@ public class ContributorPermissionsTransformer implements Transformer {
 
 	private String lookupUsernameInPortal(String email) {
 		log.debug("Looking up username for: " + email);
-		String url = systemConfig.getString("http://redboxportal:1500/default/rdmp", "portalUrlBase")+"/api/lookupUser?searchBy=email&query=";
+		String url = systemConfig.getString("http://redboxportal:1500/default/rdmp", "portalUrlBase")+"/api/users/find?searchBy=email&query=";
 		String apiToken = systemConfig.getString("", "portalApiToken");
 		
 		Request request = new Request.Builder().url(url+email).addHeader("Content-Type", "application/json")
