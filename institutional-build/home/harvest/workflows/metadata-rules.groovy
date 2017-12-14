@@ -99,54 +99,55 @@ def void indexObject(def document, JsonObject jsonObject, String prefix) {
 
 
 	for (key in tfPackageMap.keySet()) {
-		def value = tfPackageMap.get(key);
-		def fieldKey = prefix+key;
-		def isString = false;
+		if(StringUtils.isNotBlank(key)) {
+			def value = tfPackageMap.get(key);
+			def fieldKey = prefix+key;
+			def isString = false;
 
-		
-		
-		if(value instanceof String) {
-			//may be a date string
-			Date date = parseDate((String) value);
-			if (date != null) {
-				// It's a date so add the value as in a date specific solr field (starting with date_)
-				document.addField("date_"+fieldKey,date);
-			} else {
-				isString = true;
+
+
+			if(value instanceof String) {
+				//may be a date string
+				Date date = parseDate((String) value);
+				if (date != null) {
+					// It's a date so add the value as in a date specific solr field (starting with date_)
+					document.addField("date_"+fieldKey,date);
+				} else {
+					isString = true;
+				}
+
+				// If the flattened key ends in .<number> it can safely be put into an array in solr
+				if(fieldKey.matches(".*\\.[0-9]+")){
+					document.addField(fieldKey.substring(0, fieldKey.lastIndexOf('.')),tfPackageMap.get(key));
+				} else {
+					document.addField(fieldKey,tfPackageMap.get(key));
+				}
 			}
 
-			// If the flattened key ends in .<number> it can safely be put into an array in solr
-			if(fieldKey.matches(".*\\.[0-9]+")){
-				document.addField(fieldKey.substring(0, fieldKey.lastIndexOf('.')),tfPackageMap.get(key));
-			} else {
-				document.addField(fieldKey,tfPackageMap.get(key));
+			if(isString) {
+				document.addField("text_"+fieldKey,tfPackageMap.get(key));
+			}
+
+			if(value instanceof Integer) {
+				document.addField("int_"+fieldKey,tfPackageMap.get(key));
+				document.addField(fieldKey,tfPackageMap.get(key).toString());
+			}
+
+			//TODO: Float/Doubles don't appear to be picked up properly by the Jackson Parser
+			if(value instanceof Double) {
+				document.addField("float_"+fieldKey, (float)tfPackageMap.get(key).doubleValue());
+				document.addField(fieldKey,tfPackageMap.get(key).toString());
+			}
+
+			if(value instanceof Float) {
+				document.addField("float_"+fieldKey, tfPackageMap.get(key));
+				document.addField(fieldKey,tfPackageMap.get(key).toString());
+			}
+
+			if(value instanceof Boolean) {
+				document.addField("bool_"+fieldKey,tfPackageMap.get(key));
+				document.addField(fieldKey,tfPackageMap.get(key).toString());
 			}
 		}
-
-		if(isString) {
-			document.addField("text_"+fieldKey,tfPackageMap.get(key));
-		}
-
-		if(value instanceof Integer) {
-			document.addField("int_"+fieldKey,tfPackageMap.get(key));
-			document.addField(fieldKey,tfPackageMap.get(key).toString());
-		}
-
-		//TODO: Float/Doubles don't appear to be picked up properly by the Jackson Parser
-		if(value instanceof Double) {
-			document.addField("float_"+fieldKey, (float)tfPackageMap.get(key).doubleValue());
-			document.addField(fieldKey,tfPackageMap.get(key).toString());
-		}
-
-		if(value instanceof Float) {
-			document.addField("float_"+fieldKey, tfPackageMap.get(key));
-			document.addField(fieldKey,tfPackageMap.get(key).toString());
-		}
-
-		if(value instanceof Boolean) {
-			document.addField("bool_"+fieldKey,tfPackageMap.get(key));
-			document.addField(fieldKey,tfPackageMap.get(key).toString());
-		}
-
 	}
 }
