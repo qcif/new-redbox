@@ -195,7 +195,8 @@ public class ContributorPermissionsTransformer implements Transformer {
 
 			JsonSimple itemConfig = new JsonSimple(jsonConfig);
 			String emailProperty = itemConfig.getString("email","emailProperty");
-			JSONArray contributorProperties = itemConfig.getArray("contributorProperties");
+			JSONArray editContributorProperties = itemConfig.getArray("editContributorProperties");
+			JSONArray viewContributorProperties = itemConfig.getArray("viewContributorProperties");
 			
 			JsonSimple metadata = new JsonSimple(inObject.getPayload("metadata.tfpackage").open());
 
@@ -212,7 +213,7 @@ public class ContributorPermissionsTransformer implements Transformer {
 				newEditList.add(owner);
 			}
 
-			for (Object object in contributorProperties) {
+			for (Object object in editContributorProperties) {
 				String contributorProperty = (String) object;
 				def contributorObject = getMetadataValue(metadata, contributorProperty);
 				if(contributorObject instanceof JsonArray) {
@@ -237,10 +238,39 @@ public class ContributorPermissionsTransformer implements Transformer {
 				}
 			}
 
+			JSONArray newViewList = new JSONArray();
+			JSONArray viewPendingList = new JSONArray();
+			
+			for (Object object in viewContributorProperties) {
+				String contributorProperty = (String) object;
+				def contributorObject = getMetadataValue(metadata, contributorProperty);
+				if(contributorObject instanceof JsonArray) {
+					for(contributor in contributorObject) {
+						String contributorEmail = contributor.get(emailProperty).getAsString();
+						String contributorUsername = lookupUsernameInPortal(contributorEmail);
+						if (contributorUsername != null) {
+							newViewList.add(contributorUsername);
+						} else {
+							viewPendingList.add(contributorEmail);
+						}
+					}
+				} else {
 
+					String contributorEmail = ((com.google.gson.JsonObject)contributorObject).get(emailProperty).getAsString();
+					String contributorUsername = lookupUsernameInPortal(contributorEmail);
+					if (contributorUsername != null) {
+						newViewList.add(contributorUsername);
+					} else {
+						viewPendingList.add(contributorEmail);
+					}
+				}
+			}
+			
 			JsonObject metadataJsonObject = metadata.getJsonObject();
 			authorizationObject.put("edit", newEditList);
 			authorizationObject.put("editPending", editPendingList);
+			authorizationObject.put("view", newEditList);
+			authorizationObject.put("viewPending", editPendingList);
 			metadataJsonObject.put("authorization",authorizationObject);
 			InputStream inputStream = new ByteArrayInputStream(new JsonSimple(metadataJsonObject).toString(true).getBytes("UTF8"));
 			StorageUtils.createOrUpdatePayload(inObject, "metadata.tfpackage", inputStream);

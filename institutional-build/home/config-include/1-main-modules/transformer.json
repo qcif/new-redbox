@@ -2,10 +2,19 @@
 	"portalUrlBase": "${rbPortalUrlBase}",
 	"portalApiToken": "${rbPortalApiToken}",
 	"transformerDefaults": {
-        "contributorPermissions": {
-            "id": "contributorPermissions",
-            "emailProperty": "email",
-            "contributorProperties": ["metadata.contributor_ci","metadata.contributor_data_manager","metadata.contributor_supervisor","metadata.contributors"]
-        }
-    }
+		"contributorPermissions": {
+			"id": "contributorPermissions",
+			"emailProperty": "email",
+			"editContributorProperties": [
+				"metadata.contributor_ci",
+				"metadata.contributor_data_manager"
+			],
+			"viewContributorProperties": [
+				"metadata.contributor_ci",
+				"metadata.contributor_data_manager",
+				"metadata.contributor_supervisor",
+				"metadata.contributors"
+			]
+		}
+	}
 }
