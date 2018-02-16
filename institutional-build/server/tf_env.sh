@@ -7,16 +7,24 @@ export LOCAL_PORT="9000"
 export PROJECT_HOME="/opt/redbox"
 export AMQ_PORT="9101"
 export AMQ_STOMP_PORT="9102"
-export SMTP_HOST="localhost"
 export ADMIN_EMAIL="admin@localhost"
 export MINT_SERVER="http://mint:9001"
 export MINT_AMQ="tcp://mint:9201"
 export NON_PROXY_HOSTS="localhost"
 
 # set fascinator home directory
+if [ -z "$SMTP_HOST" ]; then
+	export SMTP_HOST="localhost"
+fi
+
+if [ -z "$SMTP_PORT" ]; then
+	export SMTP_PORT="25"
+fi
+
 if [ -z "$TF_HOME" ]; then
 	export TF_HOME="$PROJECT_HOME/home"
 fi
+
 export REDBOX_VERSION="1.9.0.1-SNAPSHOT"
 export FASCINATOR_HOME="$TF_HOME"
 
@@ -68,7 +76,7 @@ CONFIG_DIRS="-Dproject.home=$PROJECT_HOME -Dproject.data=$PROJECT_HOME/data -Dfa
 MINT_OPTS="-Dmint.proxy.server=$MINT_SERVER -Dmint.proxy.url=$MINT_SERVER/mint -Dmint.amq.broker=$MINT_AMQ"
 
 # additional settings
-EXTRA_OPTS="-Dserver.url.base=$SERVER_URL -Damq.port=$AMQ_PORT -Damq.stomp.port=$AMQ_STOMP_PORT -Dsmtp.host=$SMTP_HOST -Dadmin.email=$ADMIN_EMAIL -Dredbox.version=$REDBOX_VERSION -Draid.url=$RAID_URL -Draid.key=$RAID_KEY -DrbPortalUrlBase=$PORTAL_BASE_URL -DrbPortalApiToken=$PORTAL_API_TOKEN" 
+EXTRA_OPTS="-Dserver.url.base=$SERVER_URL -Damq.port=$AMQ_PORT -Damq.stomp.port=$AMQ_STOMP_PORT -Dsmtp.host=$SMTP_HOST -Dsmtp.port=$SMTP_PORT -Dadmin.email=$ADMIN_EMAIL -Dredbox.version=$REDBOX_VERSION -Draid.url=$RAID_URL -Draid.key=$RAID_KEY -DrbPortalUrlBase=$PORTAL_BASE_URL -DrbPortalApiToken=$PORTAL_API_TOKEN" 
 
 # Logging fix. Axis 1.4 (for Fedora) needs to know about the SLF4J Implementation
 COMMONS_LOGGING="-Dorg.apache.commons.logging.LogFactory=org.apache.commons.logging.impl.SLF4JLogFactory -Dorg.restlet.engine.loggerFacadeClass=org.restlet.ext.slf4j.Slf4jLoggerFacade"

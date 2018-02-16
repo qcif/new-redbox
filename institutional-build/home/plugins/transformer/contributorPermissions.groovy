@@ -202,16 +202,13 @@ public class ContributorPermissionsTransformer implements Transformer {
 
 			JsonObject authorizationObject = metadata.getObject("authorization");
 			JSONArray editArray = (JSONArray) authorizationObject.get("edit");
-			String owner = null;
-			if (editArray.size() > 0) {
-				owner = ((String) editArray.get(0));
-			}
+//			String owner = null;
+//			if (editArray.size() > 0) {
+//				owner = ((String) editArray.get(0));
+//			}
 
 			JSONArray newEditList = new JSONArray();
 			JSONArray editPendingList = new JSONArray();
-			if (owner != null) {
-				newEditList.add(owner);
-			}
 
 			for (Object object in editContributorProperties) {
 				String contributorProperty = (String) object;
