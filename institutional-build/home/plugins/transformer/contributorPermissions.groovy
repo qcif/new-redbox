@@ -1,3 +1,4 @@
+
 package com.googlecode.fascinator.redbox.plugins.transformer.rdmp;
 
 import java.io.ByteArrayInputStream
@@ -192,7 +193,7 @@ public class ContributorPermissionsTransformer implements Transformer {
 	 */
 	public DigitalObject transform(DigitalObject inObject, String jsonConfig) throws TransformerException {
 		try {
-
+			this.log.info("Assigning permissions");
 			JsonSimple itemConfig = new JsonSimple(jsonConfig);
 			String emailProperty = itemConfig.getString("email","emailProperty");
 			JSONArray editContributorProperties = itemConfig.getArray("editContributorProperties");
@@ -202,14 +203,10 @@ public class ContributorPermissionsTransformer implements Transformer {
 
 			JsonObject authorizationObject = metadata.getObject("authorization");
 			JSONArray editArray = (JSONArray) authorizationObject.get("edit");
-//			String owner = null;
-//			if (editArray.size() > 0) {
-//				owner = ((String) editArray.get(0));
-//			}
 
 			JSONArray newEditList = new JSONArray();
 			JSONArray editPendingList = new JSONArray();
-
+			this.log.info(editContributorProperties);
 			for (Object object in editContributorProperties) {
 				String contributorProperty = (String) object;
 				def contributorObject = getMetadataValue(metadata, contributorProperty);
@@ -237,7 +234,7 @@ public class ContributorPermissionsTransformer implements Transformer {
 
 			JSONArray newViewList = new JSONArray();
 			JSONArray viewPendingList = new JSONArray();
-			
+
 			for (Object object in viewContributorProperties) {
 				String contributorProperty = (String) object;
 				def contributorObject = getMetadataValue(metadata, contributorProperty);
@@ -289,7 +286,7 @@ public class ContributorPermissionsTransformer implements Transformer {
 		log.debug("Looking up username for: " + email);
 		String url = systemConfig.getString("http://redboxportal:1500/default/rdmp", "portalUrlBase")+"/api/users/find?searchBy=email&query=";
 		String apiToken = systemConfig.getString("", "portalApiToken");
-		
+		log.error("URL is: " + url); 
 		Request request = new Request.Builder().url(url+email).addHeader("Content-Type", "application/json")
 				.addHeader("Authorization", "Bearer "+apiToken).get().build();
 
