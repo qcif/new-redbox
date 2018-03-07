@@ -194,6 +194,7 @@ public class ContributorPermissionsTransformer implements Transformer {
 	public DigitalObject transform(DigitalObject inObject, String jsonConfig) throws TransformerException {
 		try {
 			this.log.info("Assigning permissions");
+			
 			JsonSimple itemConfig = new JsonSimple(jsonConfig);
 			String emailProperty = itemConfig.getString("email","emailProperty");
 			JSONArray editContributorProperties = itemConfig.getArray("editContributorProperties");
@@ -206,13 +207,22 @@ public class ContributorPermissionsTransformer implements Transformer {
 
 			JSONArray newEditList = new JSONArray();
 			JSONArray editPendingList = new JSONArray();
+			this.log.info("Edit cont properties");
 			this.log.info(editContributorProperties);
+			this.log.info(editContributorProperties.getClass().getName());
 			for (Object object in editContributorProperties) {
+				this.log.info("Processing edit contributor property :"+ object);
 				String contributorProperty = (String) object;
+				
 				def contributorObject = getMetadataValue(metadata, contributorProperty);
+				this.log.info(contributorObject.toString());
 				if(contributorObject instanceof JsonArray) {
 					for(contributor in contributorObject) {
-						String contributorEmail = contributor.get(emailProperty).getAsString();
+					def contributorEmailObjectEmail = ((com.google.gson.JsonObject)contributorObject).get(emailProperty);
+					String contributorEmail = "";
+					if(contributorEmailObjectEmail != null) {
+					    contributorEmail = contributorEmailObjectEmail.getAsString();
+					
 						String contributorUsername = lookupUsernameInPortal(contributorEmail);
 						if (contributorUsername != null) {
 							newEditList.add(contributorUsername);
@@ -220,42 +230,66 @@ public class ContributorPermissionsTransformer implements Transformer {
 							editPendingList.add(contributorEmail);
 						}
 					}
+					}
 				} else {
-
-					String contributorEmail = ((com.google.gson.JsonObject)contributorObject).get(emailProperty).getAsString();
+					String contributorEmail = "";
+					if(contributorObject instanceof com.google.gson.JsonObject) {
+						def contributorEmailObjectEmail = ((com.google.gson.JsonObject)contributorObject).get(emailProperty);
+						if(contributorEmailObjectEmail != null) {
+					    contributorEmail = contributorEmailObjectEmail.getAsString();
+					    }
+					} else {
+						this.log.info("Contributor email is:" + contributorEmail);
+						contributorEmail = contributorObject; 
+					}
+					this.log.info("Contributor Email is: " + contributorEmail );
+					if(contributorEmail !="") {
+					contributorEmail = contributorEmail.replaceAll("\"","");
 					String contributorUsername = lookupUsernameInPortal(contributorEmail);
 					if (contributorUsername != null) {
+						this.log.info("Found username: " + contributorUsername );
 						newEditList.add(contributorUsername);
 					} else {
 						editPendingList.add(contributorEmail);
 					}
+					}
+					
 				}
 			}
 
 			JSONArray newViewList = new JSONArray();
 			JSONArray viewPendingList = new JSONArray();
-
+			
 			for (Object object in viewContributorProperties) {
 				String contributorProperty = (String) object;
 				def contributorObject = getMetadataValue(metadata, contributorProperty);
 				if(contributorObject instanceof JsonArray) {
 					for(contributor in contributorObject) {
-						String contributorEmail = contributor.get(emailProperty).getAsString();
+						def contributorEmailObjectEmail = ((com.google.gson.JsonObject)contributor).get(emailProperty);
+					String contributorEmail = "";
+					if(contributorEmailObjectEmail != null) {
+					    contributorEmail = contributorEmailObjectEmail.getAsString();
+					
 						String contributorUsername = lookupUsernameInPortal(contributorEmail);
 						if (contributorUsername != null) {
 							newViewList.add(contributorUsername);
 						} else {
 							viewPendingList.add(contributorEmail);
 						}
+					 }
 					}
 				} else {
-
-					String contributorEmail = ((com.google.gson.JsonObject)contributorObject).get(emailProperty).getAsString();
+					def contributorEmailObjectEmail = ((com.google.gson.JsonObject)contributorObject).get(emailProperty);
+					String contributorEmail = "";
+					if(contributorEmailObjectEmail != null) {
+					    contributorEmail = contributorEmailObjectEmail.getAsString();
+					
 					String contributorUsername = lookupUsernameInPortal(contributorEmail);
 					if (contributorUsername != null) {
 						newViewList.add(contributorUsername);
 					} else {
 						viewPendingList.add(contributorEmail);
+					}
 					}
 				}
 			}
@@ -286,7 +320,7 @@ public class ContributorPermissionsTransformer implements Transformer {
 		log.debug("Looking up username for: " + email);
 		String url = systemConfig.getString("http://redboxportal:1500/default/rdmp", "portalUrlBase")+"/api/users/find?searchBy=email&query=";
 		String apiToken = systemConfig.getString("", "portalApiToken");
-		log.error("URL is: " + url); 
+		
 		Request request = new Request.Builder().url(url+email).addHeader("Content-Type", "application/json")
 				.addHeader("Authorization", "Bearer "+apiToken).get().build();
 
