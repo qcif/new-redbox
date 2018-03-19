@@ -1,0 +1,31 @@
+{
+	"harvester": {
+		"type": "workflow-harvester",
+		"workflow-harvester": {
+			"force-storage": "true"
+		}
+	},
+	"indexer": {
+		"script": {
+			"type": "groovy",
+			"rules": "metadata-rules.groovy"
+		},
+		"params": {
+			"repository.name": "ReDBox",
+			"repository.type": "Metadata Registry"
+		}
+	},
+	"transformer": {
+        "metadata": [
+            
+        ]
+    },
+	"stages": {
+		"name": "inbox",
+		"label": "Inbox",
+		"description": "Potential records for investigation.",
+		"security": [
+			"guest"
+		]
+	}
+}
