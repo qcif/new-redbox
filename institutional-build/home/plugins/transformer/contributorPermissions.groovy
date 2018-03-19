@@ -218,11 +218,20 @@ public class ContributorPermissionsTransformer implements Transformer {
 				this.log.info(contributorObject.toString());
 				if(contributorObject instanceof JsonArray) {
 					for(contributor in contributorObject) {
-					def contributorEmailObjectEmail = ((com.google.gson.JsonObject)contributorObject).get(emailProperty);
+					def contributorEmailObjectEmail = null;
+					if(contributorObject instanceof com.google.gson.JsonObject) {
+					 contributorEmailObjectEmail = ((com.google.gson.JsonObject)contributorObject).get(emailProperty);
+					}
 					String contributorEmail = "";
 					if(contributorEmailObjectEmail != null) {
 					    contributorEmail = contributorEmailObjectEmail.getAsString();
 					
+					
+					} else if(contributorObject instanceof com.google.gson.JsonArray) {
+					 	contributorEmail = ((com.google.gson.JsonArray)contributorObject).get(0);
+					}
+					if(!contributorEmail.equals("")){
+						contributorEmail = contributorEmail.replaceAll("\"","");
 						String contributorUsername = lookupUsernameInPortal(contributorEmail);
 						if (contributorUsername != null) {
 							newEditList.add(contributorUsername);
